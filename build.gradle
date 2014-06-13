@@ -1,0 +1,46 @@
+apply plugin: 'java'
+apply plugin: 'java-library-distribution'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+//    compile 'commons-codec:commons-codec:1.8'
+    testCompile 'junit:junit:4.11'
+    compile 'org.rxtx:rxtx:2.1.7'
+}
+
+// jar {
+// from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+// }
+
+task assembleManifestClasspath {
+    project.myjarclasspath = ""
+    configurations.runtime.each { file ->
+        project.myjarclasspath += "lib/" + file.name + " "
+    }
+}
+
+task copyToLib(type: Copy) {
+    from configurations.runtime
+    into "$projectDir/libs"
+}
+
+jar {
+    manifest {
+        attributes("Class-Path": project.myjarclasspath)
+//        attributes("Main-Class": "")
+        attributes("Implementation-Vendor": "skokys@gmail.com")
+    }
+}
+
+
+distributions {
+    main{
+        baseName = 'PololuMaestro'
+        contents {
+            from { 'dist' }
+        }
+    }
+}
